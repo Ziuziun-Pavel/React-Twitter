@@ -18,12 +18,21 @@ import './styles/search-panel.css';
 const App = () => {
 
     const data = [
+        123,
         {label: "Going to learn React", important: true, id: 'jmhgh'},
         {label: "This is so good", important: false, id: 'ghmk'},
         {label: "I need a cup of coffee" , important: false, id: 'qwzx'},
-        {label: "Somebody hear me?", important: false, id: 'opil'}
+        {label: "Somebody hear me?", important: false, id: 'opil'},
+        'fghhjmg',
+        1234,
+        {},
+        {},
+        false,
+        {label: "", important: false, id: 'opil'},
+        {label: " ", important: true, id: 'uuip'},
+        ["fgh",12]
     ];
-
+  
     return(
      <div className="app">
             <AppHeader />
