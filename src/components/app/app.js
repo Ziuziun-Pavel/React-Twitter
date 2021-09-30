@@ -1,49 +1,168 @@
-import React from 'react';
+import React, {Component} from 'react';
 
 import AppHeader from '../app-header';
 import SearchPanel from '../search-panel';
 import PostStatusFilter from '../post-status-filter';
 import PostList from '../post-list';
 import PostAddForm from '../post-add-form';
+import 'bootstrap/dist/css/bootstrap.css';
+import nextId from "react-id-generator";
 
-import './styles/app.css';
-import './styles/index.css';
-import './styles/post-add-form.css';
-import './styles/post-list-item.css';
-import './styles/app-header.css';
-import './styles/post-list.css';
-import './styles/post-status-filter.css';
-import './styles/search-panel.css';
+import './app.css';
+import './index.css';
+import styled from 'styled-components';
 
-const App = () => {
+const AppBlock = styled.div`
+    margin: 0 auto;
+    max-width: 1000px;
+    background: #fff;
+    width: 880px;
+    padding: 10px 10px 10px 10px;
+    border-radius: 26px;
+    box-shadow: 0 0 22px rgba(244, 245, 239, 0.959);
+    overflow: hidden;
+    min-height: 530px;
+    position: relative;
+`
 
-    const data = [
-        123,
-        {label: "Going to learn React", important: true, id: 'jmhgh'},
-        {label: "This is so good", important: false, id: 'ghmk'},
-        {label: "I need a cup of coffee" , important: false, id: 'qwzx'},
-        {label: "Somebody hear me?", important: false, id: 'opil'},
-        'fghhjmg',
-        1234,
-        {},
-        {},
-        false,
-        {label: "", important: false, id: 'opil'},
-        {label: " ", important: true, id: 'uuip'},
-        ["fgh",12]
-    ];
-  
-    return(
-     <div className="app">
-            <AppHeader />
-        <div className="search-panel d-flex"> 
-            <SearchPanel />
-            <PostStatusFilter />
-        </div>
-        <PostList posts={data} />
-        <PostAddForm />
-     </div>
-    )
-}
+export default class App extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            data: [
+                {label: "Going to learn React", important: true,like: false, id: nextId()},
+                {label: "This is so good", important: false,like: false, id: nextId()},
+                {label: "I need a cup of coffee" , important: false,like: false, id: nextId()},
+                {label: "Somebody hear me?", important: false,like: false, id: nextId()}
+            ],
+            term: '',
+            filter: 'all'
+        }
+        this.deleteItem = this.deleteItem.bind(this);
+        this.addItem = this.addItem.bind(this);
+        this.onToggleImportant = this.onToggleImportant.bind(this);
+        this.onToggleLiked = this.onToggleLiked.bind(this);
+        this.onUpdateSearch = this.onUpdateSearch.bind(this);
+        this.onFilterSelect= this.onFilterSelect.bind(this);
+    } 
 
-export default App;
+    deleteItem(id) {
+        this.setState(({data}) => {
+            const index = data.findIndex(elem => elem.id === id);
+
+            const before = data.slice(0, index);
+            const after = data.slice(index + 1);
+
+            const newArr = [...before, ...after];
+
+            return {
+                data: newArr
+            }
+        });
+    }
+
+    addItem(body) {
+        const newItem = {
+            label: body,
+            important: false,
+            id: nextId()
+
+        }
+        this.setState(({data}) => {
+            const newArr = [...data, newItem];
+            return {
+                data: newArr
+            }
+        });
+    }
+
+    onToggleImportant(id) {
+        this.setState(({data}) => {
+            const index = data.findIndex(elem => elem.id === id);
+
+            const old = data[index];
+            const newItem = {...old, important: !old.important};
+
+            const newArr = [...data.slice(0, index), newItem,  ...data.slice(index + 1)];
+
+            return {
+                data: newArr
+            }
+        })
+    }
+
+    onToggleLiked(id) {
+        this.setState(({data}) => {
+            const index = data.findIndex(elem => elem.id === id);
+
+            const old = data[index];
+            const newItem = {...old, like: !old.like};
+
+            const newArr = [...data.slice(0, index), newItem,  ...data.slice(index + 1)];
+
+            return {
+                data: newArr
+            }
+        })
+    }
+
+    searchPost(items, term) {
+        if (term.length === 0) {
+            return items
+        }
+
+        return items.filter( (item) => {
+            return item.label.indexOf(term) > -1
+        })
+    }
+
+    filterPost(items, filter) {
+        if (filter === 'like') {
+            return items.filter(item => item.like)
+        } else {
+            return items
+        }
+    }
+
+    onUpdateSearch(term) {
+        this.setState({term});
+    }
+
+    onFilterSelect(filter) {
+        this.setState({filter});
+    }
+
+
+    render() {
+        const {data, term, filter} = this.state;
+        
+        const liked = data.filter(item => item.like).length;
+        const allPosts = data.length;
+
+        const visiblePosts = this.filterPost(this.searchPost(data, term), filter);
+
+        return(
+            <AppBlock>
+                   <AppHeader 
+                        liked={liked}
+                        allPosts={allPosts}/>
+               <div className="search-panel d-flex"> 
+                   <SearchPanel 
+                        onUpdateSearch={this.onUpdateSearch}/>
+                   <PostStatusFilter 
+                        filter={filter}
+                        onFilterSelect={this.onFilterSelect}/>
+               </div>
+               <PostList posts={visiblePosts} 
+                         onDelete={this.deleteItem}
+                         onToggleImportant={this.onToggleImportant}
+                         onToggleLiked={this.onToggleLiked}
+                         />
+               <PostAddForm
+                    onAdd={this.addItem} />
+            </AppBlock>
+           )
+       }
+    }
+
+

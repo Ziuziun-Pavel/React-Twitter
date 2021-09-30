@@ -1,0 +1,12 @@
+.app {
+  margin: 0 auto;
+  max-width: 1000px;
+  background: #fff;
+  width: 880px;
+  padding: 10px 10px 10px 10px;
+  border-radius: 26px;
+  box-shadow: 0 0 22px rgba(244, 245, 239, 0.959);
+  overflow: hidden;
+  min-height: 530px;
+  position: relative;
+}
